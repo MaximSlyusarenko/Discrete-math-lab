@@ -1,0 +1,2 @@
+int i, j = readInt(), 5;
+printInt(i + j);

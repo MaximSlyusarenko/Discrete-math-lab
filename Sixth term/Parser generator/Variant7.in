@@ -1,0 +1,453 @@
+grammar Variant7;
+
+!s locals(Set<String> declaredVariables, int tabs)
+    @init ~
+        $declaredVariables = new HashSet<>();
+        $tabs = 1;
+    ~
+    : exprProgram1 = !exprProgram($declaredVariables, $tabs) ~
+        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream("program.cpp"), "UTF-8")) {
+            writer.write("#include <stdio.h>\n\nusing namespace std;\n\nint main() {\n" + $exprProgram1.program + "    return 0;\n}");
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+    ~
+    ;
+
+!exprProgram(Set<String> declaredVariables, int tabs) returns (String program)
+    @init ~
+        $program = "";
+    ~
+    :
+    | exprRead1 = !exprRead($declaredVariables, $tabs) ~ String tmp1 = $program; tmp1 += $exprRead1.program; $program = tmp1; ~ exprProgram1 = !exprProgram($declaredVariables, $tabs) ~ String tmp2 = $program; tmp2 += $exprProgram1.program; $program = tmp2; ~
+    | exprIf1 = !exprIf($tabs) exprProgram2 = !exprProgram($declaredVariables, $tabs) ~ String tmp3 = $program; tmp3 += $exprIf1.program + $exprProgram2.program; $program = tmp3; ~
+    | exprWhile1 = !exprWhile($tabs) exprProgram3 = !exprProgram($declaredVariables, $tabs) ~ String tmp4 = $program; tmp4 += $exprWhile1.program + $exprProgram3.program; $program = tmp4; ~
+    | exprFor1 = !exprFor($tabs) exprProgram4 = !exprProgram($declaredVariables, $tabs) ~ String tmp5 = $program; tmp5 += $exprFor1.program + $exprProgram4.program; $program = tmp5; ~
+    | exprPrint1 = !exprPrint($tabs) exprProgram5 = !exprProgram($declaredVariables, $tabs) ~ String tmp6 = $program; tmp6 += $exprPrint1.program + $exprProgram5.program; $program = tmp6; ~
+    | operationExpr1 = !operationExpr ';' exprProgram6 = !exprProgram($declaredVariables, $tabs) ~
+        String tmp7 = $program;
+        for (int i = 0; i < $tabs; i++) {
+            tmp7 += "    ";
+        }
+        tmp7 += $operationExpr1.program + ";\n" + $exprProgram6.program;
+        $program = tmp7;
+    ~
+    ;
+
+!exprFor(int tabs) returns (String program) locals (Set<String> declaredVariables)
+    @init ~
+        $declaredVariables = new HashSet<>();
+        $program = "";
+    ~
+    : 'for (' exprRead1 = !exprRead($declaredVariables, $tabs + 1) conditionPart1 = !conditionPart ';' exprProgram1 = !exprProgram($declaredVariables, $tabs + 2) '){' exprProgram2 = !exprProgram($declaredVariables, $tabs + 1) '}' ~
+        String tmp1 = $program;
+        for (int i = 0; i < $tabs; i++) {
+            tmp1 += "    ";
+        }
+        tmp1 += "bool first = true;\n";
+        for (int i = 0; i < $tabs; i++) {
+            tmp1 += "    ";
+        }
+        tmp1 += "while (true) {\n";
+        tmp1 += $exprRead1.program;
+        for (int i = 0; i < $tabs + 1; i++) {
+            tmp1 += "    ";
+        }
+        tmp1 += "if (first) {\n";
+        for (int i = 0; i < $tabs + 2; i++) {
+            tmp1 += "    ";
+        }
+        tmp1 += "first = false;\n";
+        for (int i = 0; i < $tabs + 1; i++) {
+            tmp1 += "    ";
+        }
+        tmp1 += "} else {\n";
+        tmp1 += $exprProgram1.program;
+        for (int i = 0; i < $tabs + 1; i++) {
+            tmp1 += "    ";
+        }
+        tmp1 += "}\n";
+        tmp1 += $exprProgram2.program;
+        for (int i = 0; i < $tabs + 1; i++) {
+            tmp1 += "    ";
+        }
+        tmp1 += "if (";
+        tmp1 += $conditionPart1.program;
+        tmp1 += ") {\n";
+        for (int i = 0; i < $tabs + 2; i++) {
+            tmp1 += "    ";
+        }
+        tmp1 += "break;\n";
+        for (int i = 0; i < $tabs + 1; i++) {
+            tmp1 += "    ";
+        }
+        tmp1 += "}\n";
+        for (int i = 0; i < $tabs; i++) {
+            tmp1 += "    ";
+        }
+        tmp1 += "}\n";
+        $program = tmp1;
+    ~
+    ;
+
+!exprIf(int tabs) returns (String program) locals (Set<String> declaredVariables)
+    @init ~
+        $declaredVariables = new HashSet<>();
+        $program = "";
+    ~
+    : 'if' '(' conditionPart1 = !conditionPart '){' exprProgram1 = !exprProgram($declaredVariables, $tabs + 1) '}' exprElse1 = !exprElse($tabs) ~
+        String tmp1 = $program;
+        for (int i = 0; i < $tabs; i++) {
+            tmp1 += "    ";
+        }
+        tmp1 += "if (" + $conditionPart1.program + ") {\n" + $exprProgram1.program;
+        for (int i = 0; i < $tabs; i++) {
+            tmp1 += "    ";
+        }
+        tmp1 += "}\n";
+        tmp1 += $exprElse1.program;
+        $program = tmp1;
+    ~
+    ;
+
+!exprElse(int tabs) returns (String program) locals (Set<String> declaredVariables)
+    @init ~
+            $declaredVariables = new HashSet<>();
+            $program = "";
+        ~
+        :
+        | 'else' exprIf1 = !exprIf($tabs) ~ $program = "else\n" + $exprIf1.program; ~
+        | 'else {' exprProgram1 = !exprProgram($declaredVariables, $tabs + 1) '}' ~
+            String tmp1 = $program;
+            $program = "else {\n" + $exprProgram1.program;
+            for (int i = 0; i < $tabs; i++) {
+                tmp1 += "    ";
+            }
+            tmp1 += "}";
+            $program = tmp1;
+        ~
+        ;
+
+!exprWhile(int tabs) returns (String program) locals (Set<String> declaredVariables)
+    @init ~
+        $declaredVariables = new HashSet<>();
+        $program = "";
+    ~
+    : 'while (' conditionPart1 = !conditionPart '){' exprProgram1 = !exprProgram($declaredVariables, $tabs + 1) '}' ~
+        String tmp1 = $program;
+        for (int i = 0; i < $tabs; i++) {
+            tmp1 += "    ";
+        }
+        tmp1 += "while (" + $conditionPart1.program + ") {\n" + $exprProgram1.program;
+        for (int i = 0; i < $tabs; i++) {
+            tmp1 += "    ";
+        }
+        tmp1 += "}\n";
+        $program = tmp1;
+    ~
+    ;
+
+!conditionPart returns (String program)
+    : exprCompare1 = !exprCompare ~ $program = $exprCompare1.program; ~
+    | '(' conditionPart1 = !conditionPart ')' ~ $program = "(" + $conditionPart1.program + ")"; ~
+    | 'or(' conditionPart2 = !conditionPart ',' conditionPart3 = !conditionPart ')' ~ $program = $conditionPart2.program + " || " + $conditionPart3.program; ~
+    | 'and(' conditionPart4 = !conditionPart ',' conditionPart5 = !conditionPart ')' ~ $program = $conditionPart4.program + " && " + $conditionPart5.program; ~
+    | 'xor(' conditionPart6 = !conditionPart ',' conditionPart7 = !conditionPart ')' ~ $program = $conditionPart6.program + " ^ " + $conditionPart7.program; ~
+    ;
+
+!operationExpr returns (String program)
+    : *ID ~ $program = $*ID.text; ~
+    | *VAL ~ $program = $*VAL.text; ~
+    | *ID '++' ~ $program = $*ID.text + "++"; ~
+    | *ID '--' ~ $program = $*ID.text + "--"; ~
+    | 'add(' operationExpr1 = !operationExpr ',' operationExpr2 = !operationExpr ')' ~ $program = $operationExpr1.program + " + " + $operationExpr2.program; ~
+    | 'mul(' operationExpr3 = !operationExpr ',' operationExpr4 = !operationExpr ')' ~ $program = $operationExpr3.program + " * " + $operationExpr4.program; ~
+    | 'div(' operationExpr5 = !operationExpr ',' operationExpr6 = !operationExpr ')' ~ $program = $operationExpr5.program + " / " + $operationExpr6.program; ~
+    | 'sub(' operationExpr7 = !operationExpr ',' operationExpr8 = !operationExpr ')' ~ $program = $operationExpr7.program + " - " + $operationExpr8.program; ~
+    | '-' operationExpr9 = !operationExpr ~ $program = "-" + $operationExpr9.program; ~
+    | 'exprparenth (' operationExpr10 = !operationExpr ')' ~ $program = "(" + $operationExpr10.program + ")"; ~
+    ;
+
+!exprCompare returns (String program)
+    : 'smaller(' operationExpr1 = !operationExpr ',' operationExpr2 = !operationExpr ')' ~ $program = $operationExpr1.program + " < " + $operationExpr2.program; ~
+    | 'smOrEq(' operationExpr3 = !operationExpr ',' operationExpr4 = !operationExpr ')' ~ $program = $operationExpr3.program + " <= " + $operationExpr4.program; ~
+    | 'equals(' operationExpr5 = !operationExpr ',' operationExpr6 = !operationExpr ')' ~ $program = $operationExpr5.program + " == " + $operationExpr6.program; ~
+    | 'grOrEq(' operationExpr7 = !operationExpr ',' operationExpr8 = !operationExpr ')' ~ $program = $operationExpr7.program + " >= " + $operationExpr8.program; ~
+    | 'greater(' operationExpr9 = !operationExpr ',' operationExpr10 = !operationExpr ')' ~ $program = $operationExpr9.program + " > " + $operationExpr10.program; ~
+    | operationExpr11 = !operationExpr ~ $program = $operationExpr11.program; ~
+    ;
+
+!exprPrint(int tabs) returns (String program)
+    @init ~
+        $program = "";
+    ~
+    : 'printInt' '(' operationExpr1 = !operationExpr ')' ';' ~
+        String tmp1 = $program;
+        for (int i = 0; i < $tabs; i++) {
+            tmp1 += "    ";
+        }
+        tmp1 += "printf(\"%d\", " + $operationExpr1.program + ");\n";
+        $program = tmp1;
+    ~
+    | 'printDouble' '(' operationExpr2 = !operationExpr ')' ';' ~
+        String tmp2 = $program;
+        for (int i = 0; i < $tabs; i++) {
+            tmp2 += "    ";
+        }
+        tmp2 += "printf(\"%f\", " + $operationExpr2.program + ");\n";
+        $program = tmp2;
+    ~
+    ;
+
+!exprRead(Set<String> declaredVariables, int tabs) returns (String program)
+	: exprDeclaration1 = !exprDeclaration($declaredVariables, $tabs) ~
+	    $program = $exprDeclaration1.program;
+	~
+	;
+
+!exprDeclaration(Set<String> declaredVariables, int tabs) returns (String program)
+    : exprType1 = !exprType exprNamesEqualsValues1 = !exprNamesEqualsValues($exprType1.type, $declaredVariables, $tabs) ';' ~
+        $program = $exprNamesEqualsValues1.program;
+    ~
+    ;
+
+!exprType returns (String type)
+    : '.int' ~ $type = "int "; ~
+    | '.double' ~ $type = "real "; ~
+    ;
+
+!exprNamesEqualsValues(String type, Set<String> declaredVariables, int tabs) returns (String program, List<String> names, Set<String> changedNames)
+    @init ~
+        $names = new ArrayList<>();
+        $changedNames = new HashSet<>();
+        $program = "";
+    ~
+    : *ID ',' ~ List<String> tmpNames = new ArrayList<>($names); tmpNames.add($*ID.text); $names = new ArrayList<>(tmpNames); ~ exprON1 = !exprON($type, $names, $changedNames, $declaredVariables, $tabs) ~
+        String tmp1 = $program;
+        tmp1 += $exprON1.program;
+        $program = tmp1;
+    ~
+    | *ID '=' ~ List<String> tmpNames1 = new ArrayList<>($names); tmpNames1.add($*ID.text); $names = new ArrayList<>(tmpNames1); ~ exprValues1 = !exprValues($type, $names, $changedNames, $declaredVariables, $tabs) ~
+        String tmp2 = $program;
+        Set<String> tmpDeclared = new HashSet<>($declaredVariables);
+        for (String changedName: $exprValues1.declareTemp) {
+            for (int i = 0; i < $tabs; i++) {
+                tmp2 += "    ";
+            }
+            if (tmpDeclared.contains(changedName + "1")) {
+                tmp2 += changedName + "1 = !" + changedName + ";\n";
+            } else {
+                tmpDeclared.add(changedName + "1");
+                tmp2 += $type + changedName + "1 = !" + changedName + ";\n";
+            }
+        }
+        tmp2 += $exprValues1.program;
+        $program = tmp2;
+        $declaredVariables = new HashSet<>(tmpDeclared);
+    ~
+    ;
+
+!exprON(String type, List<String> names, Set<String> changedNames, Set<String> declaredVariables, int tabs) returns (String program)
+    @init ~
+        $program = "";
+    ~
+    : *ID ~ List<String> tmpNames = new ArrayList<>($names); tmpNames.add($*ID.text); $names = new ArrayList<>(tmpNames); ~ ',' exprON1 = !exprON($type, $names, $changedNames, $declaredVariables, $tabs) ~
+        String tmp1 = $program;
+        tmp1 += $exprON1.program;
+        $program = tmp1;
+    ~
+    | *ID ~ List<String> tmpNames1 = new ArrayList<>($names); tmpNames1.add($*ID.text); $names = new ArrayList<>(tmpNames1); ~ '=' exprValues1 = !exprValues($type, $names, $changedNames, $declaredVariables, $tabs) ~
+        String tmp2 = $program;
+        Set<String> tmpDeclared = new HashSet<>($declaredVariables);
+        for (String changedName: $exprValues1.declareTemp) {
+            for (int i = 0; i < $tabs; i++) {
+                tmp2 += "    ";
+            }
+            if (tmpDeclared.contains(changedName + "1")) {
+                tmp2 += changedName + "1 = !" + changedName + ";\n";
+            } else {
+                tmpDeclared.add(changedName + "1");
+                tmp2 += $type + changedName + "1 = !" + changedName + ";\n";
+            }
+        }
+        tmp2 += $exprValues1.program;
+        $program = tmp2;
+        $declaredVariables = new HashSet<>(tmpDeclared);
+    ~
+    ;
+
+!exprValues(String type, List<String> names, Set<String> changedNames, Set<String> declaredVariables, int tabs) returns (String program, Set<String> declareTemp) locals (String name, boolean nameIsDeclared, String lastRegexp)
+    @init ~
+        $name = $names.get(0);
+        $names.remove(0);
+        $program = "";
+        $declareTemp = new HashSet<>();
+    ~
+    : 'readInt(),' ~ Set<String> tmpDeclared = new HashSet<>($declaredVariables); Set<String> tmpChanged = new HashSet<>($changedNames); tmpChanged.add($name); $changedNames = new HashSet<>(tmpChanged); if (tmpDeclared.contains($name)) { $nameIsDeclared = true;} else { tmpDeclared.add($name); $nameIsDeclared = false;} $declaredVariables = new HashSet<>(tmpDeclared); $changedNames = new HashSet<>(tmpChanged); ~ exprValues1 = !exprValues($type, $names, $changedNames, $declaredVariables, $tabs) ~
+        Set<String> tmpDeclared1 = new HashSet<>($declareTemp);
+        String tmp1 = $program;
+        tmpDeclared1.addAll($exprValues1.declareTemp);
+        for (int i = 0; i < $tabs; i++) {
+            tmp1 += "    ";
+        }
+        if ($nameIsDeclared) {
+            tmp1 += "scanf(\"%d\", &" + $name + ");\n";
+        } else {
+            tmp1 += $type + $name + ";\n";
+            for (int i = 0; i < $tabs; i++) {
+                tmp1 += "    ";
+            }
+            tmp1 += "scanf(\"%d\", &" + $name + ");\n";
+        }
+        tmp1 += $exprValues1.program;
+        $program = tmp1;
+        $declareTemp = new HashSet<>(tmpDeclared1);
+    ~
+    | 'readDouble(),' ~ Set<String> tmpDeclared2 = new HashSet<>($declaredVariables); Set<String> tmpChanged1 = new HashSet<>($changedNames); tmpChanged1.add($name); if (tmpDeclared2.contains($name)) { $nameIsDeclared = true;} else { tmpDeclared2.add($name); $nameIsDeclared = false;} $declaredVariables = new HashSet<>(tmpDeclared2); $changedNames = new HashSet<>(tmpChanged1); ~ exprValues2 = !exprValues($type, $names, $changedNames, $declaredVariables, $tabs) ~
+        Set<String> tmpDeclared3 = new HashSet<>($declareTemp);
+        String tmp2 = $program;
+        tmpDeclared3.addAll($exprValues2.declareTemp);
+        for (int i = 0; i < $tabs; i++) {
+            tmp2 += "    ";
+        }
+        if ($nameIsDeclared) {
+            tmp2 += "scanf(\"%f\", &" + $name + ");\n";
+        } else {
+            tmp2 += $type + $name + ";\n";
+            for (int i = 0; i < $tabs; i++) {
+                tmp2 += "    ";
+            }
+            tmp2 += "scanf(\"%f\", &" + $name + ");\n";
+        }
+        tmp2 += $exprValues2.program;
+        $program = tmp2;
+        $declareTemp = new HashSet<>(tmpDeclared3);
+    ~
+    | *VAL ',' ~ $lastRegexp = $*VAL.text; Set<String> tmpDeclared4 = new HashSet<>($declaredVariables); Set<String> tmpChanged2 = new HashSet<>($changedNames); tmpChanged2.add($name); if (tmpDeclared4.contains($name)) { $nameIsDeclared = true;} else { tmpDeclared4.add($name); $nameIsDeclared = false;} $declaredVariables = new HashSet<>(tmpDeclared4); $changedNames = new HashSet<>(tmpChanged2); ~ exprValues3 = !exprValues($type, $names, $changedNames, $declaredVariables, $tabs) ~
+        Set<String> tmpDeclared5 = new HashSet<>($declareTemp);
+        String tmp3 = $program;
+        tmpDeclared5.addAll($exprValues3.declareTemp);
+        for (int i = 0; i < $tabs; i++) {
+            tmp3 += "    ";
+        }
+        if ($nameIsDeclared) {
+            tmp3 += $name + " = " + $lastRegexp + ";\n";
+        } else {
+            tmp3 += $type + $name + " = " + $lastRegexp + ";\n";
+        }
+        tmp3 += $exprValues3.program;
+        $program = tmp3;
+        $declareTemp = new HashSet<>(tmpDeclared5);
+    ~
+    | *ID ',' ~ $lastRegexp = $*ID.text; Set<String> tmpDeclared6 = new HashSet<>($declaredVariables); Set<String> tmpChanged3 = new HashSet<>($changedNames); tmpChanged3.add($name); if (tmpDeclared6.contains($name)) { $nameIsDeclared = true;} else { tmpDeclared6.add($name); $nameIsDeclared = false;} $declaredVariables = new HashSet<>(tmpDeclared6); $changedNames = new HashSet<>(tmpChanged3); ~ exprValues4 = !exprValues($type, $names, $changedNames, $declaredVariables, $tabs) ~
+        Set<String> tmpDeclared7 = new HashSet<>($declareTemp);
+        Set<String> tmpChanged10 = new HashSet<>($changedNames);
+        String tmp4 = $program;
+        tmpDeclared7.addAll($exprValues4.declareTemp);
+        for (int i = 0; i < $tabs; i++) {
+            tmp4 += "    ";
+        }
+        if (tmpChanged10.contains($lastRegexp)) {
+            tmpDeclared7.add($lastRegexp);
+            if ($nameIsDeclared) {
+                tmp4 += $name + " = " + $lastRegexp + "1;\n";
+            } else {
+                tmp4 += $type + $name + " = " + $lastRegexp + "1;\n";
+            }
+        } else {
+            if ($nameIsDeclared) {
+                tmp4 += $name + " = " + $lastRegexp + ";\n";
+            } else {
+                tmp4 += $type + $name + " = " + $lastRegexp + ";\n";
+            }
+        }
+        tmp4 += $exprValues4.program;
+        $program = tmp4;
+        $declareTemp = new HashSet<>(tmpDeclared7);
+    ~
+    | 'readInt()' ~
+        Set<String> tmpDeclared8 = new HashSet<>($declaredVariables);
+        String tmp5 = $program;
+        for (int i = 0; i < $tabs; i++) {
+            tmp5 += "    ";
+        }
+        if (tmpDeclared8.contains($name)) {
+            tmp5 += $name + ";\nscanf(\"%d\", &" + $name + ");\n";
+        } else {
+            tmpDeclared8.add($name);
+            tmp5 += $type + $name + ";\n";
+            for (int i = 0; i < $tabs; i++) {
+                tmp5 += "    ";
+            }
+            tmp5 += "scanf(\"%d\", &" + $name + ");\n";
+        }
+        $program = tmp5;
+        $declaredVariables = new HashSet<>(tmpDeclared8);
+    ~
+    | 'readDouble()' ~
+        Set<String> tmpDeclared9 = new HashSet<>($declaredVariables);
+        String tmp6 = $program;
+        for (int i = 0; i < $tabs; i++) {
+            tmp6 += "    ";
+        }
+        if (tmpDeclared9.contains($name)) {
+            tmp6 += $name + ";\nscanf(\"%f\", &" + $name + ");\n";
+        } else {
+            tmpDeclared9.add($name);
+            tmp6 += $type + $name + ";\n";
+            for (int i = 0; i < $tabs; i++) {
+                tmp6 += "    ";
+            }
+            tmp6 += "scanf(\"%f\", &" + $name + ");\n";
+        }
+        $program = tmp6;
+        $declaredVariables = new HashSet<>(tmpDeclared9);
+    ~
+    | *VAL ~
+        Set<String> tmpDeclared10 = new HashSet<>($declaredVariables);
+        String tmp7 = $program;
+        for (int i = 0; i < $tabs; i++) {
+            tmp7 += "    ";
+        }
+        if (tmpDeclared10.contains($name)) {
+            tmp7 += $name + " = " + $*VAL.text + ";\n";
+        } else {
+            tmpDeclared10.add($name);
+            tmp7 += $type + $name + " = " + $*VAL.text + ";\n";
+        }
+        $program = tmp7;
+        $declaredVariables = new HashSet<>(tmpDeclared10);
+    ~
+    | *ID ~
+        Set<String> tmpDeclared11 = new HashSet<>($declaredVariables);
+        Set<String> tmpDeclared12 = new HashSet<>($declareTemp);
+        Set<String> tmpChanged11 = new HashSet<>($changedNames);
+        String tmp8 = $program;
+        for (int i = 0; i < $tabs; i++) {
+            tmp8 += "    ";
+        }
+        if (tmpChanged11.contains($*ID.text)) {
+            tmpDeclared12.add($*ID.text);
+            if (tmpDeclared11.contains($name)) {
+                tmp8 += $name + " = " + $*ID.text + "1;\n";
+            } else {
+                tmpDeclared11.add($name);
+                tmp8 += $type + $name + " = " + $*ID.text + "1;\n";
+            }
+        } else {
+            if (tmpDeclared11.contains($name)) {
+                tmp8 += $name + " = " + $*ID.text + ";\n";
+            } else {
+                tmpDeclared11.add($name);
+                tmp8 += $type + $name + " = " + $*ID.text + ";\n";
+            }
+        }
+        $program = tmp8;
+        $declaredVariables = new HashSet<>(tmpDeclared11);
+        $declareTemp = new HashSet<>(tmpDeclared12);
+    ~
+    ;
+
+*ID : [a-z]+ ;
+*VAL : [0-9]+ ;
+*WS : [ \t \r \n] -> skip ;

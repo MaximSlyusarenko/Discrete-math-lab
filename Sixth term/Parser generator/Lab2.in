@@ -1,0 +1,42 @@
+grammar Lab2;
+
+!s
+    : e1 = !e ~ System.out.println("Result: " + $e1.val); ~
+    ;
+
+!e returns (boolean val)
+    : t1 = !t ec1 = !ec($t1.val) ~ $val = $ec1.val; ~
+    ;
+
+!ec (boolean acc) returns (boolean val) locals (boolean tmpVal)
+    : ~ $val = $acc; ~
+    | '|' t1 = !t ~ boolean tmp = $t1.val; tmp |= $acc; $tmpVal = tmp; ~ ec1 = !ec($tmpVal) ~ $val = $ec1.val; ~
+    ;
+
+!t returns (boolean val)
+    : f1 = !f tc1 = !tc($f1.val) ~ $val = $tc1.val; ~
+    ;
+
+!tc (boolean acc) returns (boolean val) locals (boolean tmpVal)
+    : ~ $val = $acc; ~
+    | '^' f1 = !f ~ boolean tmp = $f1.val; tmp ^= $acc; $tmpVal = tmp; ~ tc1 = !tc($tmpVal) ~ $val = $tc1.val; ~
+    ;
+
+!f returns (boolean val)
+    : p1 = !p fc1 = !fc($p1.val) ~ $val = $fc1.val; ~
+    ;
+
+!fc (boolean acc) returns (boolean val) locals (boolean tmpVal)
+    : ~ $val = $acc; ~
+    | '&' p1 = !p ~ boolean tmp = $p1.val; tmp &= $acc; $tmpVal = tmp; ~ fc1 = !fc($tmpVal) ~ $val = $fc1.val; ~
+    ;
+
+!p returns (boolean val)
+    : *NUM ~ String tmp = $*NUM.text; $val = (tmp.equals("1") ? true : false); ~
+    | '(' e1 = !e ')' ~ $val = $e1.val; ~
+    | *NOT p1 = !p ~ $val = !$p1.val; ~
+    ;
+
+*NOT: [!];
+*NUM: [0-1];
+*WS : [ \t \r \n] -> skip ;

@@ -1,0 +1,43 @@
+grammar Arith;
+
+!s
+    : e1 = !e ~ System.out.println("Result: " + $e1.val); ~
+    ;
+
+!e returns (int val)
+    : t1 = !t ec1 = !ec($t1.val) ~ $val = $ec1.val; ~
+    ;
+
+!ec (int acc) returns (int val) locals (int tmpVal)
+    : ~ $val = $acc; ~
+    | '+' t1 = !t ~ int tmp = $t1.val; tmp += $acc; $tmpVal = tmp; ~ ec1 = !ec($tmpVal) ~ $val = $ec1.val; ~
+    | '-' t2 = !t ~ int tmp1 = $acc; tmp1 -= $t2.val; $tmpVal = tmp1; ~ ec2 = !ec($tmpVal) ~ $val = $ec2.val; ~
+    ;
+
+!t returns (int val)
+    : f1 = !f tc1 = !tc($f1.val) ~ $val = $tc1.val; ~
+    ;
+
+!tc (int acc) returns (int val) locals (int tmpVal)
+    : ~ $val = $acc; ~
+    | *MUL f1 = !f ~ int tmp = $f1.val; tmp *= $acc; $tmpVal = tmp; ~ tc1 = !tc($tmpVal) ~ $val = $tc1.val; ~
+    ;
+
+!f returns (int val)
+    : p1 = !p fc1 = !fc($p1.val) ~ $val = $fc1.val; ~
+    ;
+
+!fc (int acc) returns (int val)
+    : ~ $val = $acc; ~
+    | '^' f1 = !f ~ $val = (int) Math.pow($acc, $f1.val); ~
+    ;
+
+!p returns (int val)
+    : *NUM ~ $val = Integer.valueOf($*NUM.text); ~
+    | '(' e1 = !e ')' ~ $val = $e1.val; ~
+    | '-' p1 = !p ~ $val = -$p1.val; ~
+    ;
+
+*MUL: [*];
+*NUM: [0-9]+;
+*WS : [ \t \r \n] -> skip ;

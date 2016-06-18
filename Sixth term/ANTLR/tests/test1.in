@@ -1,0 +1,3 @@
+int a, b = readInt(), readInt();
+a, b = b, a;
+c, d = d, c;

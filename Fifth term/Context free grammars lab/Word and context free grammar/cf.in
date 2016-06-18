@@ -1,0 +1,176 @@
+52 A
+A -> BBBBB
+B -> CCCCC
+C -> DDDDD
+D -> EEEEE
+E -> FFFFF
+F -> GGGGG
+G -> HHHHH
+H -> IIIII
+I -> JJJJJ
+J -> KKKKK
+K -> LLLLL
+L -> MMMMM
+M -> NNNNN
+N -> OOOOO
+O -> PPPPP
+P -> QQQQQ
+Q -> RRRRR
+R -> SSSSS
+S -> TTTTT
+T -> UUUUU
+U -> VVVVV
+V -> WWWWW
+W -> XXXXX
+X -> YYYYY
+Y -> ZZZZZ
+Z -> aA
+A ->
+B ->
+C ->
+D ->
+E ->
+F ->
+G ->
+H ->
+I ->
+J ->
+K ->
+L ->
+M ->
+N ->
+O ->
+P ->
+Q ->
+R ->
+S ->
+T ->
+U ->
+V ->
+W ->
+X ->
+Y ->
+Z ->
+aaaaaa
+
+5 S
+S -> aSa
+S -> bSb
+S ->
+S -> a
+S -> b
+abbababba
+
+3 S
+S ->
+S -> aSb
+S -> SS
+aaabbaabbb
+
+2 S
+S -> aA
+A -> b
+ab
+
+3 S
+S ->
+S -> aSb
+S -> SS
+aaabbaabbb
+
+10 A
+A -> BBBBB
+B -> CCCCC
+C -> DDDDD
+D -> EEEEE
+E -> aA
+A ->
+B ->
+C ->
+D ->
+E ->
+aaaaaaa
+
+6 A
+A -> BBBBB
+B -> CCCCC
+C -> aA
+A ->
+B ->
+C ->
+aaaaaaaaaaa
+
+4 A
+A -> BBBBB
+B -> aA
+B ->
+A ->
+aaaaaaaaaaa
+
+6 A
+A -> BBBBB
+B -> CCCCC
+C -> aA
+C ->
+A ->
+B ->
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+
+4 A
+A -> BBBBB
+B -> aA
+A ->
+B ->
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+
+2 S
+S -> a
+S -> SSS
+aaaa
+
+2 S
+S -> A
+A ->
+as
+
+3 S
+S -> B
+B ->
+B -> a
+a
+
+4 S
+S -> ASB
+S ->
+B ->
+A -> a
+a
+
+2 S
+S -> aSb
+S ->
+aaabbb
+
+5 S
+S -> aSa
+S -> bSb
+S ->
+S -> a
+S -> b
+abbababba
+
+2 S
+S -> aSbS
+S ->
+aaaabbabbb
+
+3 S
+S ->
+S -> aSb
+S -> SS
+aaabbaabbb
+
+2 S
+S -> aA
+A -> b
+ab

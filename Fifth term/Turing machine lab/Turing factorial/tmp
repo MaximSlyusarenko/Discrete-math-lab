@@ -1,0 +1,58 @@
+cout << "gefwo0 0 -> gefwo0 0 >" << endl;
+    cout << "gefwo0 1 -> gefwo0 1 >" << endl;
+    cout << "gefwo0 3 -> gefwo0 3 >" << endl;
+    cout << "gefwo0 4 -> gefwo0 4 >" << endl;
+    cout << "gefw40 _ -> r2r0maf0af1 0 <" << endl;
+
+    cout << "gefw0a 0 -> gefw0a 0 >" << endl;
+    cout << "gefw0a 1 -> gefw0a 1 >" << endl;
+    cout << "gefw0a 3 -> gefw0a 3 >" << endl;
+    cout << "gefw0a 4 -> gefw0a 4 >" << endl;
+    cout << "gefw0a _ -> ar1sr0f 2 <" << endl; // ar1sr0f - add, restore 1 at second, restore 0 at first
+
+    cout << "ar1sr0f 0 -> ar1sr0f 0 <" << endl;
+    cout << "ar1sr0f 1 -> ar1sr0f 1 <" << endl;
+    cout << "ar1sr0f 4 -> afr1sr0f 4 <" << endl; // afr1sr0f - add first digit, restore 1 at second, restore 0 at first
+
+    cout << "afr1sr0f 0 -> gndr1s 5 >" << endl; // gndr1s - go to the next digit, restore 1 at second
+    cout << "afr1sr0f 1 -> agndr1 5 >" << endl; // agndr1 - add, go to the next digit, restore 1 at second
+    cout << "afr1sr0f 3 -> add4r1sr0f 3 >" << endl; // add4r1sr0f - adding done, delete 4, restore 1 at second, restore 0 at first TODO
+
+    cout << "gndr1s 0 -> gndr1s 0 >" << endl;
+    cout << "gndr1s 1 -> gndr1s 1 >" << endl;
+    cout << "gndr1s 4 -> gndr1s 4 >" << endl;
+    cout << "gndr1s 2 -> car1sr0f 0 <" << endl; // car1sr0f - continue adding, restore 1 at second, restore 0 at first
+
+    cout << "car1sr0f 0 -> anfdr1sr0f 2 <" << endl; // anfdr1sr0f - add not first digit, restore 1 at second, restore 0 at first
+    cout << "car1sr0f 1 -> ar1sr1f 2 <" << endl; // ar1sr1f - add, restore 1 at second, restore 1 at first TODO
+    cout << "car1sr0f 4 -> car1sr0f 4 <" << endl;
+
+    cout << "agndr1 0 -> agndr1 0 >" << endl;
+    cout << "agndr1 1 -> agndr1 1 >" << endl;
+    cout << "agndr1 4 -> agndr1 4 >" << endl;
+    cout << "agndr1 2 -> car1sr1f 1 <" << endl; // car1sr1f - continue adding, restore 1 at second, restore 1 at first
+
+    cout << "anfdr1sr0f 0 -> anfdr1sr0f 0 <" << endl;
+    cout << "anfdr1sr0f 1 -> anfdr1sr0f 1 <" << endl;
+    cout << "anfdr1sr0f 4 -> anfdr1sr0f 4 <" << endl;
+    cout << "anfdr1sr0f 5 -> afr1sr0f 0 <" << endl;
+
+    cout << "car1sr1f 0 -> anfdr1sr0f51 2 <" << endl; // anfdr1sr0f51 - the same, but swap 5 on 1
+    cout << "car1sr1f 1 -> anfdr1sr1f51 2 <" << endl; // the same, but restore 1 at first
+    cout << "car1sr1f 4 -> car1sr1f 4 <" << endl;
+
+    cout << "anfdr1sr0f51 0 -> anfdr1sr0f51 0 <" << endl;
+    cout << "anfdr1sr0f51 1 -> anfdr1sr0f51 1 <" << endl;
+    cout << "anfdr1sr0f51 3 -> anfdr1sr0f51 3 <" << endl;
+    cout << "anfdr1sr0f51 4 -> anfdr1sr0f51 4 <" << endl;
+    cout << "anfdr1sr0f51 5 -> afr1sr0f 1 <" << endl;
+
+    cout << "anfdr1sr1f51 0 -> anfdr1sr1f51 0 <" << endl;
+    cout << "anfdr1sr1f51 1 -> anfdr1sr1f51 1 <" << endl;
+    cout << "anfdr1sr1f51 3 -> anfdr1sr1f51 3 <" << endl;
+    cout << "anfdr1sr1f51 4 -> anfdr1sr1f51 4 <" << endl;
+    cout << "anfdr1sr1f51 5 -> ar1sr1f 1 <" << endl; // ar1sr1f - add, restore 1 at second, restore 1 at first TODO
+
+    cout << "ar1sr1f 0 -> ar1s5021 5 >" << endl; // ar1s5021 - add, restore 1 at second, swap 5 o1 0, swap 2 on 1
+    cout << "ar1sr1f 1 -> ar1s512a 5 >" << endl; // ar1s512a - add, restore 1 at second, swap 5 on 1, add to 2 (2 is 1 really)
+    cout << "ar1sr1f 3 -> add4r1sr1f 3 >" << endl; // add4r1f - adding done, delete 4, restore 1 at second, restore 1 at first TODO

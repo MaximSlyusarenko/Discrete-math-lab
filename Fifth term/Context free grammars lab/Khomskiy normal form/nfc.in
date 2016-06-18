@@ -1,0 +1,30 @@
+6 S
+A -> AA
+S -> AA
+S -> ZZ
+Z -> ZZ
+A -> a
+Z -> a
+aaaaaaaaaaaaaaaa
+
+3 S
+S -> ZZ
+Z -> BB
+B -> a
+aaaa
+
+6 S
+S -> AS
+S -> SA
+A -> a
+A -> b
+S -> a
+S -> b
+ba
+
+4 S
+S -> AB
+S -> AA
+A -> a
+B -> a
+aa
